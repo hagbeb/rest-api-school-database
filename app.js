@@ -11,6 +11,8 @@ const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'tr
 
 // create the Express app
 const app = express();
+// parse json in request body
+app.use(express.json());
 
 // import sequelize (which is property of exported 'db' object in models/index.js)
 var sequelize = require('./models').sequelize;
