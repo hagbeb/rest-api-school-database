@@ -35,6 +35,7 @@ function asyncHandler(cb){
     }
   }
 }
+
 // api/users route. GET current user
 router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
   // the following runs if authorization succeeded & authenticateUser called 'next()'
@@ -140,8 +141,8 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
   res.status(200).json(course);
 }));
 
-// ccreate express-validator chains for post and put courses roots
-// chains will check that title and description are present & not empty
+// Create express-validator chains for post and put courses roots.
+// The chains will check that title and description are present & not empty
 const titleValidationChain = check('title')
     .exists()
     .notEmpty()
