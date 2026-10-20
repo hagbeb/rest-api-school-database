@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Course.init({
+    // title and description cannot be NULL or empty
     title: {
       type: DataTypes.STRING,
       allowNull: false,

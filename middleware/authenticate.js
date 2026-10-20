@@ -10,10 +10,10 @@ const bcrypt = require('bcryptjs');
 exports.authenticateUser = async (req, res, next) => {
   let message; // store the message to display
   console.log('looking for credentials');
-  // Parse the user's credentials from the Authorization header.
   let credentials;
+  // Parse the user's credentials from the Authorization header.
   // check there's an authorization header first, otherwise parse will throw error...
-  // ... as it looks for a string
+  // ... as it wants a string
   if (req.headers.authorization) {
     credentials = parse(req.headers.authorization);
   }
@@ -24,16 +24,16 @@ exports.authenticateUser = async (req, res, next) => {
     const user = await User.findOne({ where: {emailAddress: credentials.name} });
     // If a user email was successfully matched in the database...
     if (user) {
-      // Use the bcrypt npm package to compare the user's password
-      // (from the Authorization header) to the user's password
-      // that was retrieved from the data store.
+      // Use the bcrypt npm package to compare the (hashed versions of) user's password
+      // ...from the Authorization header to the user password...
+      // ...that was retrieved from the database.
       const authenticated = bcrypt.compareSync(credentials.pass, user.password);
       // If the passwords match...
       if (authenticated) { // If the passwords match
         console.log(`Authentication successful for user: ${credentials.name}`);
-        // Store the retrieved user object on the request object
-        // so any middleware functions that follow this middleware function
-        // will have access to the user's information.
+        // Store the retrieved user object on the request object...
+        // ...so any middleware functions that follow this middleware function...
+        // ...will have access to the user's information.
         req.currentUser = user;
       } else {
         message = `User not found for username: ${credentials.name}`;
@@ -44,7 +44,7 @@ exports.authenticateUser = async (req, res, next) => {
   } else {
     message = 'Authentication header not found';
   }
-  // If the message variable has a value. In that case, we know that a failure occurred.
+  // If the message variable has a value, we know that authentication failed.
   // If user authentication failed...
   if (message) {
     console.warn(message);

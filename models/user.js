@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
+    // firstName and lastName cannot be NULL or empty
     firstName: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -59,6 +60,8 @@ module.exports = (sequelize, DataTypes) => {
     password:  {
       type: DataTypes.STRING,
       allowNull: false,
+      // password cannot be empty. Password length check is done in route handler...
+      // ...as Sequelize validation was checking the hash, not the original
       validate: {
         notEmpty: {
             msg: 'Please provide a password.',
