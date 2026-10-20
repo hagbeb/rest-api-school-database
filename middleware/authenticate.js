@@ -9,15 +9,20 @@ const bcrypt = require('bcryptjs');
 // Middleware to authenticate the request using Basic Auth.
 exports.authenticateUser = async (req, res, next) => {
   let message; // store the message to display
+  console.log('looking for credentials');
   // Parse the user's credentials from the Authorization header.
-  const credentials = parse(req.headers.authorization);
-  console.log('credentials: ', credentials);
-  // If the user's credentials are available...
+  let credentials;
+  // check there's an authorization header first, otherwise parse will throw error...
+  // ... as it looks for a string
+  if (req.headers.authorization) {
+    credentials = parse(req.headers.authorization);
+  }
+  // If user credentials were submitted in the request...
   if (credentials) {
     // Attempt to retrieve the user from the data store by their email...
     // ...from the Authorization header).
     const user = await User.findOne({ where: {emailAddress: credentials.name} });
-    // If a user was successfully retrieved from the database...
+    // If a user email was successfully matched in the database...
     if (user) {
       // Use the bcrypt npm package to compare the user's password
       // (from the Authorization header) to the user's password
@@ -37,7 +42,7 @@ exports.authenticateUser = async (req, res, next) => {
       message = `User not found for username: ${credentials.name}`;
     }
   } else {
-    message = 'Auth header not found';
+    message = 'Authentication header not found';
   }
   // If the message variable has a value. In that case, we know that a failure occurred.
   // If user authentication failed...
@@ -47,8 +52,8 @@ exports.authenticateUser = async (req, res, next) => {
     res.status(401).json({ message: 'Access Denied' });
     // Or if user authentication succeeded...
   } else {
-    console.log('no error message, so calling next in authenticate middleware');
     // ...call the next() method to go to next middleware.
+    console.log('authentication successful, calling next middleware');
     next(); 
   }
 };
