@@ -140,30 +140,64 @@ router.get('/courses/:id', asyncHandler(async (req, res) => {
   res.status(200).json(course);
 }));
 
-// create a course. Authenticate user first as only logged in users are allowed to
-router.post('/courses', authenticateUser, asyncHandler(async (req, res) => {
-  console.log('creating course');
-  // create course
-  const course = await Course.create(req.body);
-  // set location header to new course page. Return 201 status. End with no content
-  res.location(`/courses/${course.id}`).status(201).end();
+// ccreate express-validator chains for post and put courses roots
+// chains will check that title and description are present & not empty
+const titleValidationChain = check('title')
+    .exists()
+    .notEmpty()
+    .withMessage('Please provide a title');
+const descriptionValidationChain = check('description')
+    .exists()
+    .notEmpty()
+    .withMessage('Please provide a description');
+
+// create a course. Check that title and description are not empty
+// Authenticate user first as only logged in users are allowed to
+router.post('/courses', titleValidationChain, descriptionValidationChain, authenticateUser, asyncHandler(async (req, res) => {
+  // Attempt to get the validation result from the Request object.
+  const errors = validationResult(req);
+  // If there are Express validation errors...
+  if (!errors.isEmpty()) {
+  // Use the Array `map()` method to get a list of error messages.
+    const errorMessages = errors.array().map(error => error.msg);
+    // Return the validation errors to the client.
+    res.status(400).json({ errors: errorMessages });
+    // if there no express-validator errors...
+  } else {
+    console.log('creating course');
+    // create course
+    const course = await Course.create(req.body);
+    // set location header to new course page. Return 201 status. End with no content
+    res.location(`/courses/${course.id}`).status(201).end();
+  }
 }));
 
 // update a course. authenticateUser first
-router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
-  console.log('updating course');
-  // retrieve the course the user wants to update
-  const course = await Course.findByPk(req.params.id);
-  // Before updating, check the course belongs to the user:
-  // if the user Id matches the userId of the course they want to update
-  if (req.currentUser.id == course.userId) {
-    // update the course using request body
-    await course.update(req.body);
-    // Return 204 status. End with no content
-    res.status(204).end();
-  // else, if the course is not theirs, return a 403 and message for the user.
+router.put('/courses/:id', titleValidationChain, descriptionValidationChain, authenticateUser, asyncHandler(async (req, res) => {
+  // Attempt to get the validation result from the Request object.
+  const errors = validationResult(req);
+  // If there are Express validation errors...
+  if (!errors.isEmpty()) {
+  // Use the Array `map()` method to get a list of error messages.
+    const errorMessages = errors.array().map(error => error.msg);
+    // Return the validation errors to the client.
+    res.status(400).json({ errors: errorMessages });
+    // if there no express-validator errors...
   } else {
-    res.status(403).json({ message: 'You do not have access to this course.' });
+    console.log('updating course');
+    // retrieve the course the user wants to update
+    const course = await Course.findByPk(req.params.id);
+    // Before updating, check the course belongs to the user:
+    // if the user Id matches the userId of the course they want to update
+    if (req.currentUser.id == course.userId) {
+      // update the course using request body
+      await course.update(req.body);
+      // Return 204 status. End with no content
+      res.status(204).end();
+    // else, if the course is not theirs, return a 403 and message for the user.
+    } else {
+      res.status(403).json({ message: 'You do not have access to this course.' });
+    }
   }
 }));
 
