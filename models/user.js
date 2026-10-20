@@ -20,6 +20,8 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
+  // provide msg properties for both notNull & notEmpty, so we have custom messages...
+  // ...for both
   User.init({
     // firstName and lastName cannot be NULL or empty
     firstName: {
@@ -28,7 +30,10 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         notEmpty: {
             msg: 'Please provide a value for firstName',
-          },
+        },
+        notNull: {
+            msg: 'Please provide a value for firstName',
+        },
       },
     },
     lastName:  {
@@ -37,7 +42,10 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         notEmpty: {
             msg: 'Please provide a value for lastName',
-          },
+        },
+        notNull: {
+            msg: 'Please provide a value for lastName',
+        },
       },
     },
     emailAddress:  {
@@ -50,7 +58,10 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         notEmpty: {
             msg: 'Please provide an email address.',
-          },
+        },
+        notNull: {
+            msg: 'Please provide an email address.',
+        },
         // also use built-in isEmail validator to ensure it's valid email address
         isEmail: {
           msg: 'Please provide a valid email address',
@@ -64,6 +75,9 @@ module.exports = (sequelize, DataTypes) => {
       // ...as Sequelize validation was checking the hash, not the original
       validate: {
         notEmpty: {
+            msg: 'Please provide a password.',
+        },
+        notNull: {
             msg: 'Please provide a password.',
         },
       },

@@ -20,6 +20,8 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
+  // provide msg properties for both notNull & notEmpty, so we have custom messages...
+  // ...for both
   Course.init({
     // title and description cannot be NULL or empty
     title: {
@@ -28,7 +30,10 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         notEmpty: {
             msg: 'Please provide a title.',
-          },
+        },
+        notNull: {
+            msg: 'Please provide a title.',
+        },
       },
     },
     description:{
@@ -37,7 +42,10 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         notEmpty: {
             msg: 'Please provide a description.',
-          },
+        },
+        notNull: {
+            msg: 'Please provide a description.',
+        },
       },
     },
     estimatedTime: DataTypes.STRING,
