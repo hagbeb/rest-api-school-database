@@ -43,6 +43,7 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
   // retrieve the current authenticated user's information
   const user = req.currentUser;
   res.status(200).json({
+    id: user.id,
     firstName: user.firstName,
     lastName: user.lastName,
     emailAddress: user.emailAddress
@@ -102,13 +103,17 @@ router.post('/users', [
 // retrieve all courses
 router.get('/courses', asyncHandler(async (req, res) => {
   const courses = await Course.findAll({
+    // list attributes we want to return - no createdAt or updatedAt
+    attributes: [
+      'id', 'title', 'description', 'materialsNeeded',
+    ],
     // include the User related to each course
     include: [
       {
         model: User,
         as: 'User',
-        // List attributes so that we don't return the password
-        attributes: ['id', 'firstName', 'lastName', 'emailAddress', 'createdAt', 'updatedAt']
+        // List attributes so that we don't return the password, createdAt & updatedAt
+        attributes: ['id', 'firstName', 'lastName', 'emailAddress']
       }
     ]
   });
@@ -120,13 +125,17 @@ router.get('/courses', asyncHandler(async (req, res) => {
 router.get('/courses/:id', asyncHandler(async (req, res) => {
   // use the id in the url from req.params to findByPk the relevant course
   const course = await Course.findByPk(req.params.id, {
+    // list attributes we want to return - no createdAt or updatedAt
+    attributes: [
+      'id', 'title', 'description', 'materialsNeeded',
+    ],
     // include the User related to each course
     include: [
       {
         model: User,
         as: 'User',
-        // List attributes so that we don't return the password
-        attributes: ['id', 'firstName', 'lastName', 'emailAddress', 'createdAt', 'updatedAt']
+        // List attributes so that we don't return the password, createdAt & updatedAt
+        attributes: ['id', 'firstName', 'lastName', 'emailAddress']
       }
     ]
   });
@@ -155,13 +164,13 @@ router.put('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
     await course.update(req.body);
     // Return 201 status. End with no content
     res.status(204).end();
+  // else, if the course is not theirs, return a 403 and message for the user.
   } else {
-    // Return a 401 and message for the user.
-    res.status(401).json({ message: 'You do not have access to this course.' });
+    res.status(403).json({ message: 'You do not have access to this course.' });
   }
 }));
 
-// update a course. Again use authenticateUser to check correct user is logged in
+// delete a course. Again use authenticateUser to check correct user is logged in
 router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) => {
   console.log('deleting course');
   // retrieve the course the user wants to delete
@@ -172,9 +181,9 @@ router.delete('/courses/:id', authenticateUser, asyncHandler(async (req, res) =>
     await course.destroy();
     // Return 201 status. End with no content
     res.status(204).end();
+  // else, if the course is not theirs, return a 403 and message for the user.
   } else {
-    // Return a 401 and message for the user.
-    res.status(401).json({ message: 'You do not have access to this course.' });
+    res.status(403).json({ message: 'You do not have access to this course.' });
   }
 }));
 
